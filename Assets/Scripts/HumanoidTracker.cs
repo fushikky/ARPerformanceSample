@@ -4,6 +4,8 @@ using VRM;
 
 public class HumanoidTracker : MonoBehaviour
 {
+    HumanPoseHandler originalHandler;
+    HumanPoseHandler targetHandler;
     private Animator _animator;
 
     private void Start()
@@ -19,15 +21,28 @@ public class HumanoidTracker : MonoBehaviour
             return;
         }
 
-        var originalHandler = new HumanPoseHandler(origin.avatar, origin.transform);
-        var targetHandler = new HumanPoseHandler(_animator.avatar, _animator.transform);
+        Transform originTransform = origin.transform;
+        Transform originHipsT = origin.GetBoneTransform(HumanBodyBones.Hips);
+        HumanPose originPose = new HumanPose();
 
-        HumanPose humanPose = new HumanPose();
-        originalHandler.GetHumanPose(ref humanPose);
-        targetHandler.SetHumanPose(ref humanPose);
+        if (originalHandler == null)
+        { originalHandler = new HumanPoseHandler(origin.avatar, origin.transform); }
 
-        _animator.rootPosition = origin.rootPosition;
-        _animator.rootRotation = origin.rootRotation;
+        originalHandler.GetHumanPose(ref originPose);
+
+        HumanPose targetPose = new HumanPose();
+        targetPose.muscles = originPose.muscles;
+        _animator.transform.position = originTransform.position;
+        _animator.transform.rotation = originTransform.rotation;
+
+        if (targetHandler == null)
+        { targetHandler = new HumanPoseHandler(_animator.avatar, _animator.transform); }
+
+        targetHandler.SetHumanPose(ref targetPose);
+        _animator.GetBoneTransform(HumanBodyBones.Hips).localPosition = originHipsT.localPosition;
+        _animator.GetBoneTransform(HumanBodyBones.Hips).localRotation = originHipsT.localRotation;
+        _animator.GetBoneTransform(HumanBodyBones.Hips).parent.transform.localPosition = originHipsT.parent.transform.localPosition;
+        _animator.GetBoneTransform(HumanBodyBones.Hips).parent.transform.localRotation = originHipsT.parent.transform.localRotation;
     }
 
     private void ImportVRMAsync()
