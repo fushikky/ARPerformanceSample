@@ -33,7 +33,7 @@ public class HumanoidTracker : MonoBehaviour
         HumanPose targetPose = new HumanPose();
         targetPose.muscles = originPose.muscles;
         _animator.transform.position = originTransform.position;
-        _animator.transform.rotation = originTransform.rotation;
+        _animator.transform.rotation = originTransform.rotation * Quaternion.Euler(0, 180, 0);
 
         if (targetHandler == null)
         { targetHandler = new HumanPoseHandler(_animator.avatar, _animator.transform); }
